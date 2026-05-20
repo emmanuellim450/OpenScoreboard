@@ -99,7 +99,9 @@ export function ScoringSide(props) {
                             if (props.isA) {
                                 let newAScore = await AddPoint(props.matchID, gameNumber, "A")
                                 if (!manualServiceMode) {
-                                    await updateService(props.matchID, props.isAInitialServer, gameNumber, newAScore + props[`game${gameNumber}BScore`], props.changeServeEveryXPoints, props.pointsToWinGame, props.sportName, props.scoringType)
+                                    // For badminton: A scored so A serves next (pass true)
+                                    // For other sports: use normal calculation
+                                    await updateService(props.matchID, props.isAInitialServer, gameNumber, newAScore + props[`game${gameNumber}BScore`], props.changeServeEveryXPoints, props.pointsToWinGame, props.sportName, props.scoringType, true)
                                 }
                                 let isGameDone = isGameFinished(props.enforceGameScore, newAScore, props[`game${gameNumber}BScore`], props.pointsToWinGame, props.pointCap)
                                 if (isGameDone) {
@@ -124,7 +126,9 @@ export function ScoringSide(props) {
                             else {
                                 let newBScore = await AddPoint(props.matchID, getCurrentGameNumber(props), "B")
                                 if (!manualServiceMode) {
-                                    await updateService(props.matchID, props.isAInitialServer, gameNumber, newBScore + props[`game${gameNumber}AScore`], props.changeServeEveryXPoints, props.pointsToWinGame, props.sportName, props.scoringType)
+                                    // For badminton: B scored so B serves next (pass false = B is serving)
+                                    // For other sports: use normal calculation
+                                    await updateService(props.matchID, props.isAInitialServer, gameNumber, newBScore + props[`game${gameNumber}AScore`], props.changeServeEveryXPoints, props.pointsToWinGame, props.sportName, props.scoringType, false)
                                 }
                                 let isGameDone = isGameFinished(props.enforceGameScore, props[`game${gameNumber}AScore`], newBScore, props.pointsToWinGame, props.pointCap)
                                 if (isGameDone) {
@@ -208,7 +212,11 @@ export function ScoringSide(props) {
                             let gameNumber = getCurrentGameNumber(props)
                             if (props.isA) {
                                 let newAScore = await MinusPoint(props.matchID, getCurrentGameNumber(props), "A")
-                                await updateService(props.matchID, props.isAInitialServer, gameNumber, newAScore + props[`game${gameNumber}BScore`], props.changeServeEveryXPoints, props.pointsToWinGame, props.sportName, props.scoringType)
+                                // Do not change serve when subtracting a point (correcting a mistake)
+                                // Only recalculate for non-badminton sports
+                                if (props.sportName !== "badminton") {
+                                    await updateService(props.matchID, props.isAInitialServer, gameNumber, newAScore + props[`game${gameNumber}BScore`], props.changeServeEveryXPoints, props.pointsToWinGame, props.sportName, props.scoringType)
+                                }
                                 if (isGamePoint({ ...props, [`game${gameNumber}AScore`]: newAScore }) && isFinalGame({ ...props, [`game${gameNumber}AScore`]: newAScore })) {
                                     //Match Point
                                     setIsMatchPoint(props.matchID, true)
@@ -227,7 +235,11 @@ export function ScoringSide(props) {
                             }
                             else {
                                 let newBScore = await MinusPoint(props.matchID, getCurrentGameNumber(props), "B")
-                                await updateService(props.matchID, props.isAInitialServer, gameNumber, newBScore + props[`game${gameNumber}AScore`], props.changeServeEveryXPoints, props.pointsToWinGame, props.sportName, props.scoringType)
+                                // Do not change serve when subtracting a point (correcting a mistake)
+                                // Only recalculate for non-badminton sports
+                                if (props.sportName !== "badminton") {
+                                    await updateService(props.matchID, props.isAInitialServer, gameNumber, newBScore + props[`game${gameNumber}AScore`], props.changeServeEveryXPoints, props.pointsToWinGame, props.sportName, props.scoringType)
+                                }
                                 if (isGamePoint({ ...props, [`game${gameNumber}BScore`]: newBScore }) && isFinalGame({ ...props, [`game${gameNumber}BScore`]: newBScore })) {
                                     //Match Point
                                     setIsMatchPoint(props.matchID, true)

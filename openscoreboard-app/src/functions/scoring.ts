@@ -26,27 +26,27 @@ export async function MinusPoint(matchID, gameNumber, AorB) {
 
 }
 
-export async function updateService(matchID, isAInitialServer, gameNumber, combinedPoints, changeServeEveryXPoints, pointsToWinGame, sportName, scoringType = null) {
+export async function updateService(matchID, isAInitialServer, gameNumber, combinedPoints, changeServeEveryXPoints, pointsToWinGame, sportName, scoringType = null, isACurrentlyServing = null) {
 
     switch (sportName) {
         case "tableTennis":
             db.ref(`matches/${matchID}/isACurrentlyServing`).set(isAServing(isAInitialServer, gameNumber, combinedPoints, changeServeEveryXPoints, pointsToWinGame))
-
+            break;
+        case "badminton":
+            // In badminton, whoever won the rally serves next
+            // isACurrentlyServing is passed in directly from whoever just scored
+            if (isACurrentlyServing !== null) {
+                db.ref(`matches/${matchID}/isACurrentlyServing`).set(isACurrentlyServing)
+            }
             break;
         case "pickleball":
-            //This function is not used in pickleball, only when creating a new game. 
-            // Also setting this to isSecondServer:true
             db.ref(`matches/${matchID}/isACurrentlyServing`).set(isAServing(isAInitialServer, gameNumber, combinedPoints, changeServeEveryXPoints, pointsToWinGame))
             db.ref(`matches/${matchID}/isSecondServer`).set(true)
             break;
         default:
             db.ref(`matches/${matchID}/isACurrentlyServing`).set(isAServing(isAInitialServer, gameNumber, combinedPoints, changeServeEveryXPoints, pointsToWinGame))
-
             break;
     }
-
-
-
 }
 
 export function getCurrentGameNumber(match) {
