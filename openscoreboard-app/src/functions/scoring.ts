@@ -355,9 +355,15 @@ export function isAServing(initialMatchServerIsA, gameNumber, combinedScore, ser
 
 }
 
-export function isGameFinished(enforceGameScore, playerAScore, playerBScore, pointsToWinGame) {
+export function isGameFinished(enforceGameScore, playerAScore, playerBScore, pointsToWinGame, pointCap = null) {
 
     if (enforceGameScore) {
+        // Point cap rule (e.g. badminton: first to 30 wins regardless)
+        if (pointCap !== null) {
+            if (playerAScore >= pointCap) return true
+            if (playerBScore >= pointCap) return true
+        }
+
         if (playerAScore >= pointsToWinGame && playerBScore <= playerAScore - 2) {
             return true
         }
@@ -367,7 +373,6 @@ export function isGameFinished(enforceGameScore, playerAScore, playerBScore, poi
         else {
             return false
         }
-
     }
     else {
         return false

@@ -47,6 +47,7 @@ export default class Match {
             enforceGameScore: true,
             changeServeEveryXPoints: 2,
             pointsToWinGame: 11,
+            pointCap: null,
 
             //Pickleball
             isSecondServer: true,
@@ -163,11 +164,12 @@ export default class Match {
         }
         if (previousMatchObj) {
 
-            const { bestOf, pointsToWinGame, isDoubles, isManualServiceMode, changeServeEveryXPoints, enforceGameScore, scoringType } = previousMatchObj
+            const { bestOf, pointsToWinGame, pointCap, isDoubles, isManualServiceMode, changeServeEveryXPoints, enforceGameScore, scoringType } = previousMatchObj
             matchSettings = {
                 ...matchSettings,
                 bestOf: bestOf,
                 pointsToWinGame: pointsToWinGame,
+                pointCap: pointCap ?? null,
                 isDoubles: isDoubles,
                 isManualServiceMode: isManualServiceMode,
                 changeServeEveryXPoints: changeServeEveryXPoints,

@@ -132,7 +132,7 @@ export function ScoringSidePickleball(props) {
                             if (props.isA) {
                                 let newAScore = await AWonRally_PB(props.matchID, gameNumber, props.isACurrentlyServing, props.isSecondServer, props.isDoubles, props.scoringType === "rally", props.pointsToWinGame, props[`game${gameNumber}AScore`])
                                 if (newAScore) {
-                                    let isGameDone = isGameFinished(props.enforceGameScore, newAScore, props[`game${gameNumber}BScore`], props.pointsToWinGame)
+                                    let isGameDone = isGameFinished(props.enforceGameScore, newAScore, props[`game${gameNumber}BScore`], props.pointsToWinGame, props.pointCap)
                                     if (isGameDone) {
                                         props.openGameWonConfirmationModal()
                                     }
@@ -158,7 +158,7 @@ export function ScoringSidePickleball(props) {
                                 let newBScore = await BWonRally_PB(props.matchID, gameNumber, props.isACurrentlyServing, props.isSecondServer, props.isDoubles, props.scoringType === "rally", props.pointsToWinGame, props[`game${gameNumber}BScore`])
 
                                 if (newBScore) {
-                                    let isGameDone = isGameFinished(props.enforceGameScore, props[`game${gameNumber}AScore`], newBScore, props.pointsToWinGame)
+                                    let isGameDone = isGameFinished(props.enforceGameScore, props[`game${gameNumber}AScore`], newBScore, props.pointsToWinGame, props.pointCap)
                                     if (isGameDone) {
                                         props.openGameWonConfirmationModal()
                                     }
@@ -225,7 +225,7 @@ export function ScoringSidePickleball(props) {
                                 if (props.isA) {
                                     let newAScore = await AddPoint(props.matchID, gameNumber, "A")
 
-                                    let isGameDone = isGameFinished(props.enforceGameScore, newAScore, props[`game${gameNumber}BScore`], props.pointsToWinGame)
+                                    let isGameDone = isGameFinished(props.enforceGameScore, newAScore, props[`game${gameNumber}BScore`], props.pointsToWinGame, props.pointCap)
                                     if (isGameDone) {
                                         props.openGameWonConfirmationModal()
                                     }
@@ -248,7 +248,7 @@ export function ScoringSidePickleball(props) {
                                 else {
                                     let newBScore = await AddPoint(props.matchID, getCurrentGameNumber(props), "B")
 
-                                    let isGameDone = isGameFinished(props.enforceGameScore, props[`game${gameNumber}AScore`], newBScore, props.pointsToWinGame)
+                                    let isGameDone = isGameFinished(props.enforceGameScore, props[`game${gameNumber}AScore`], newBScore, props.pointsToWinGame, props.pointCap)
                                     if (isGameDone) {
                                         props.openGameWonConfirmationModal()
                                     }

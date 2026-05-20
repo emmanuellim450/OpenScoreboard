@@ -30,6 +30,15 @@ export const supportedSports = {
                 }
             }
         }
+    },
+    badminton: {
+        displayName: "Badminton",
+        hasScoringTypes: false,
+        defaults: {
+            bestOf: 3,
+            isDoubles: false,
+            pointsToWinGame: 21,
+            pointCap: 30
+        }
     }
 }
-

@@ -101,7 +101,7 @@ export function ScoringSide(props) {
                                 if (!manualServiceMode) {
                                     await updateService(props.matchID, props.isAInitialServer, gameNumber, newAScore + props[`game${gameNumber}BScore`], props.changeServeEveryXPoints, props.pointsToWinGame, props.sportName, props.scoringType)
                                 }
-                                let isGameDone = isGameFinished(props.enforceGameScore, newAScore, props[`game${gameNumber}BScore`], props.pointsToWinGame)
+                                let isGameDone = isGameFinished(props.enforceGameScore, newAScore, props[`game${gameNumber}BScore`], props.pointsToWinGame, props.pointCap)
                                 if (isGameDone) {
                                     props.openGameWonConfirmationModal()
                                 }
@@ -126,7 +126,7 @@ export function ScoringSide(props) {
                                 if (!manualServiceMode) {
                                     await updateService(props.matchID, props.isAInitialServer, gameNumber, newBScore + props[`game${gameNumber}AScore`], props.changeServeEveryXPoints, props.pointsToWinGame, props.sportName, props.scoringType)
                                 }
-                                let isGameDone = isGameFinished(props.enforceGameScore, props[`game${gameNumber}AScore`], newBScore, props.pointsToWinGame)
+                                let isGameDone = isGameFinished(props.enforceGameScore, props[`game${gameNumber}AScore`], newBScore, props.pointsToWinGame, props.pointCap)
                                 if (isGameDone) {
                                     props.openGameWonConfirmationModal()
                                 }
@@ -184,7 +184,7 @@ export function ScoringSide(props) {
                                             }
                                         }}
                                         backgroundColor={manualServiceMode ? null : "transparent"}>
-                                        <AntDesign name={isOnLeft ? "caretleft" : "caretright"} size={24} color={openScoreboardButtonTextColor} />
+                                        <AntDesign name={isOnLeft ? "caret-left" : "caret-right"} size={24} color={openScoreboardButtonTextColor} />
 
                                     </Button>
                                 </View>

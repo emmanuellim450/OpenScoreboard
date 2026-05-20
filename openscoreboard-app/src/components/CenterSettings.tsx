@@ -30,12 +30,12 @@ export function CenterSettings(props) {
                     borderStyle={"groove"} borderWidth="4" borderColor={"white"} padding={1}>
                     <View alignItems={"center"} flexDirection={"row"}>
                         {serveLeft ?
-                            <AntDesign name="caretleft" size={24} color={openScoreboardButtonTextColor} />
+                            <AntDesign name="caret-left" size={24} color={openScoreboardButtonTextColor} />
                             : null}
 
                         <Text color={openScoreboardButtonTextColor} fontWeight={"bold"} textAlign={"center"}>{i18n.t("serve")}</Text>
                         {!serveLeft ?
-                            <AntDesign name="caretright" size={24} color={openScoreboardButtonTextColor} />
+                            <AntDesign name="caret-right" size={24} color={openScoreboardButtonTextColor} />
                             : null}
 
                     </View>

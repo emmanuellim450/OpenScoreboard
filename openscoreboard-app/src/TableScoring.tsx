@@ -210,7 +210,7 @@ export default function TableScoring(props) {
                     }
 
                     let gameNumber = getCurrentGameNumber(matchData)
-                    let isGameDone = isGameFinished(matchData.enforceGameScore, matchData[`game${gameNumber}AScore`], matchData[`game${gameNumber}BScore`], matchData.pointsToWinGame)
+                    let isGameDone = isGameFinished(matchData.enforceGameScore, matchData[`game${gameNumber}AScore`], matchData[`game${gameNumber}BScore`], matchData.pointsToWinGame, matchData.pointCap)
                     if (isGameDone) {
                         openGameWonConfirmationModal()
                     }

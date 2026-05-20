@@ -26,7 +26,7 @@ export const HomeItem = ({ item, navigation }) => {
 
                 </View>
                 <View alignItems={"center"} justifyContent={"center"} padding={0}>
-                    <AntDesign name="arrowright" size={24} color={openScoreboardColor} />
+                    <AntDesign name="right" size={24} color={openScoreboardColor} />
                 </View>
 
 

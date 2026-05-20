@@ -1,14 +1,11 @@
 
-export function getCurrentGameScore(match:MatchSettings) {
+export function getCurrentGameScore(match: MatchSettings) {
     if (match) {
         console.log(match)
         if (match.isInBetweenGames) {
-
-            for (let gameN = 1; gameN <= 9; gameN++) {
+            // Find the most recently finished game
+            for (let gameN = 9; gameN >= 1; gameN--) {
                 if (match[`isGame${gameN}Started`] === true && match[`isGame${gameN}Finished`] === true) {
-                    //Do Nothing
-                }
-                else {
                     return {
                         a: match[`game${gameN}AScore`],
                         b: match[`game${gameN}BScore`]
@@ -32,7 +29,7 @@ export function getCurrentGameScore(match:MatchSettings) {
     }
 }
 
-export function getMatchScore(match:MatchSettings) {
+export function getMatchScore(match: MatchSettings) {
     let gameScore = { a: 0, b: 0 };
     for (let gameN = 1; gameN <= 9; gameN++) {
         if (match[`isGame${gameN}Finished`] === true) {

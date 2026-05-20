@@ -52,14 +52,14 @@ export default function Home(props) {
     ]
 
     console.log(window.location.hostname)
-    if (window.location.hostname === 'app.openscoreboard.com') {
-        scoreboards.push({
-            route: "TableLiveScoringLink",
-            title: i18n.t("tableLiveScoring"),
-            description: i18n.t("tableLiveScoringDescription"),
 
-        })
-    }
+    scoreboards.push({
+        route: "TableLiveScoringLink",
+        title: i18n.t("tableLiveScoring"),
+        description: i18n.t("tableLiveScoringDescription"),
+
+    })
+
 
     const account = [
 
