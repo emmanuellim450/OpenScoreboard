@@ -6,7 +6,7 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "experiments": {
-      "baseUrl": "/app"
+      "baseUrl": ""
     },
     "userInterfaceStyle": "light",
     "updates": {

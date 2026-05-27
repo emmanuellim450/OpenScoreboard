@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "openscoreboard-sg"
+  },
+  "targets": {
+    "openscoreboard-sg": {
+      "hosting": {
+        "app": [
+          "openscoreboard-sg-app"
+        ],
+        "main": [
+          "openscoreboard-sg"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

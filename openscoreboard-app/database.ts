@@ -17,6 +17,10 @@ else {
     const firebaseApp = firebase.initializeApp(firebaseConfig);
     const analytics = firebase.analytics(firebaseApp)
     db = firebase.database()
+    // Handle redirect result from Google Sign-In
+    firebase.auth().getRedirectResult().catch((error) => {
+        console.error("Redirect error:", error)
+    })
 }
 
 export function authStateListener(callbackFunction) {
@@ -60,10 +64,7 @@ export async function loginToFirebase(email, password) {
         }
     }
 
-
-
     return result
-
 }
 
 export async function registerToFirebase(email, password) {
@@ -102,7 +103,6 @@ export async function signOut() {
     firebase.auth().signOut()
 }
 
-
 /**
  * 
  * @returns string User ID or mylocalserver
@@ -119,14 +119,7 @@ export function getUserPath() {
         else {
             return false
         }
-
     }
-
-
 }
-
-
-
-
 
 export default db

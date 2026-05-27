@@ -1,0 +1,56 @@
+{
+  "hosting": [
+    {
+      "target": "app",
+      "public": "openscoreboard-app/dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*"
+      ],
+      "rewrites": [
+        {
+          "source": "/login",
+          "destination": "/index.html"
+        },
+        {
+          "source": "/scoring/**",
+          "destination": "/index.html"
+        },
+        {
+          "source": "/tables",
+          "destination": "/index.html"
+        },
+        {
+          "source": "/scoreboards",
+          "destination": "/index.html"
+        },
+        {
+          "source": "/",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "target": "main",
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "/scoreboard/**",
+          "destination": "/scoreboard/index.html"
+        },
+        {
+          "source": "/editor/**",
+          "destination": "/editor/index.html"
+        }
+      ]
+    }
+  ],
+  "database": {
+    "rules": "database.rules.json"
+  }
+}
