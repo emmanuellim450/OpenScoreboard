@@ -62,17 +62,10 @@ export default function Home(props) {
 
 
     const account = [
-
         {
             route: "MyAccount",
             title: i18n.t("accountSettings"),
             description: i18n.t("accountSettingsDescription"),
-
-        },
-        {
-            route: "",
-            title: `${i18n.t("tutorials")}(${i18n.t("comingSoon")})`,
-            description: i18n.t("tutorialsDescription"),
 
         },
     ]

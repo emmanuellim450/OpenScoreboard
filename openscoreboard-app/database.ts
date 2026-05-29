@@ -24,7 +24,7 @@ else {
 }
 
 export function authStateListener(callbackFunction) {
-    firebase.auth().onAuthStateChanged((user) => {
+    return firebase.auth().onAuthStateChanged((user) => {
         callbackFunction(user)
     })
 }
@@ -50,16 +50,24 @@ export async function loginToFirebase(email, password) {
     } catch (err) {
         switch (err.code) {
             case "auth/user-not-found":
-                result.errorMessage = "Invalid Username/Password"
+                result.errorMessage = "No account found with this email address"
                 break;
             case "auth/invalid-email":
-                result.errorMessage = "Invalid Email"
+                result.errorMessage = "Invalid email address"
                 break;
             case "auth/wrong-password":
-                result.errorMessage = "Invalid Username/Password"
+                result.errorMessage = "Incorrect password"
+                break;
+            case "auth/invalid-credential":
+            case "auth/invalid-login-credentials":
+            case "INVALID_LOGIN_CREDENTIALS":
+                result.errorMessage = "No account found with this email, or incorrect password"
+                break;
+            case "auth/too-many-requests":
+                result.errorMessage = "Too many failed attempts. Please try again later"
                 break;
             default:
-                result.errorMessage = err.message
+                result.errorMessage = "Sign in failed. Please check your email and password"
                 break;
         }
     }

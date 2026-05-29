@@ -28,28 +28,8 @@ export function initializeGrapesJS(scoreboardID:string|null) {
         allowScripts: 1,
         fromElement: true,
         assetManager: {
-            customFetch: async (url, options) => {
-                try {
-                    let response = await fetch(url, {
-                        method: "POST",
-                        body: options.body,
-                        mode: "cors"
-                    });
-                    let data = await response.json();
-                    if (data.error) {
-                        alert(data.errorMessage);
-                    }
-                    else {
-                        editor.AssetManager.add(data.data);
-                    }
-                } catch (error) {
-                    alert("Failed To Upload Image");
-                }
-            },
-            upload: import.meta.env.VITE_FILE_UPLOAD_PATH || false,
+            upload: false,
             autoAdd: true,
-             embedAsBase64: import.meta.env.VITE_IS_LOCAL_DATABASE === "false" ? false : true,
-            //  uploadFile
         },
         panels: {
             appendTo: "#top-panel"

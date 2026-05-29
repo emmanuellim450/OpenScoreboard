@@ -92,12 +92,12 @@ export default function TableLiveScoringLink(props) {
                                 return isSelected
                             }).length > 0 ?
                                 <View padding={1} flexDir={"row"}>
-                                    <Input flex={1} isReadOnly value={`${"https://openscoreboard.com/live-scoring?tables="}${Object.entries(selectedTables).filter(([id, isSelected]) => {
+                                    <Input flex={1} isReadOnly value={`${window.location.origin}${subFolderPath}/livescoring?tables=${Object.entries(selectedTables).filter(([id, isSelected]) => {
                                         return isSelected
                                     }).map(([id, isSelected]) => {
                                         return id
                                     }).join(",")}`}></Input>
-                                    <CopyButton text={`${"https://openscoreboard.com/live-scoring?tables="}${Object.entries(selectedTables).filter(([id, isSelected]) => {
+                                    <CopyButton text={`${window.location.origin}${subFolderPath}/livescoring?tables=${Object.entries(selectedTables).filter(([id, isSelected]) => {
                                         return isSelected
                                     }).map(([id, isSelected]) => {
                                         return id

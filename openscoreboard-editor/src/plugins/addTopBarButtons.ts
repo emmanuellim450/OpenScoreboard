@@ -81,6 +81,30 @@ export function addTopBarButtons(editor) {
                     }
                 }
             },
+            {
+                id: "uploadImageButton", label: "Upload Image", command: {
+                    run: function (editor) {
+                        const fileInput = document.createElement('input');
+                        fileInput.style.display = "none";
+                        fileInput.type = 'file';
+                        fileInput.accept = 'image/*';
+                        fileInput.onchange = function(event) {
+                            const file = event.target.files[0];
+                            if (!file) return;
+                            const fileReader = new FileReader();
+                            fileReader.onload = function() {
+                                const dataUrl = fileReader.result;
+                                editor.AssetManager.add(dataUrl);
+                                editor.runCommand("open-assets");
+                            };
+                            fileReader.readAsDataURL(file);
+                            fileInput.remove();
+                        };
+                        document.body.appendChild(fileInput);
+                        fileInput.click();
+                    }
+                }
+            },
         ]
     }
     if(process.env.NODE_ENV !=="production"){

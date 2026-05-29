@@ -220,5 +220,10 @@
     "tableLiveScoringDescription": "Share tables/courts, for online scoring.",
     "createLink": "Create Link",
     "selectAndShareCreatedURL": "Select the Table/Court(s) below share the created URL.",
-    "visibility": "Visibility"
+    "visibility": "Visibility",
+    "accountInfo": "Account Info",
+    "email": "Email",
+    "displayName": "Display Name",
+    "signInMethod": "Sign In Method",
+    "notSignedIn": "Not Signed In"
 }

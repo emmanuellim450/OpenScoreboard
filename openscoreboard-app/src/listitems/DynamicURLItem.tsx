@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, View, Text, Input } from 'native-base';
-import { scoreboardBaseURL } from '../../openscoreboard.config';
+import { scoreboardBaseURL, subFolderPath } from '../../openscoreboard.config';
 import { openScoreboardButtonTextColor, openScoreboardColor } from "../../openscoreboardtheme";
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import { deleteDynamicURL, openEmail } from '../functions/dynamicurls';
@@ -14,7 +14,7 @@ export function DynamicURLItem(props) {
     let subTitle = ""
     let scoreKeepingURL
     if (props.isTeamMatch) {
-        scoreKeepingURL = `${window.location.origin}/teamscoring/teammatch/true/${matchInfo.teammatchID}/?name=${encodeURI(`${matchInfo.teamAName} VS ${matchInfo.teamBName}`)}`;
+        scoreKeepingURL = `${window.location.origin}${subFolderPath}/teamscoring/teammatch/true/${matchInfo.teammatchID}/?name=${encodeURI(`${matchInfo.teamAName} VS ${matchInfo.teamBName}`)}`;
 
     }
     else {
@@ -23,11 +23,11 @@ export function DynamicURLItem(props) {
 
     if (matchInfo["tableID"] && matchInfo["tableID"].length > 0) {
         subTitle = i18n.t("table") + ": " + matchInfo["tableName"]
-        scoreKeepingURL = `${window.location.origin}/scoring/table/${matchInfo.tableID}/${matchInfo.tableName}/${matchInfo.password}`
+        scoreKeepingURL = `${window.location.origin}${subFolderPath}/scoring/table/${matchInfo.tableID}/${matchInfo.tableName}/${matchInfo.password}`
     }
     else if (matchInfo["teammatchID"] && matchInfo["teammatchID"].length > 0) {
         subTitle = `${i18n.t("teamMatch")}: ${matchInfo["teamAName"]} vs ${matchInfo["teamBName"]} T${matchInfo["tableNumber"]}(${matchInfo["teamMatchStartTime"]})`
-        scoreKeepingURL = `${window.location.origin}/teamscoring/teammatch/true/${matchInfo.teammatchID}/${matchInfo["tableNumber"]}/?name=${encodeURI(`${matchInfo.teamAName} VS ${matchInfo.teamBName}`)}`;
+        scoreKeepingURL = `${window.location.origin}${subFolderPath}/teamscoring/teammatch/true/${matchInfo.teammatchID}/${matchInfo["tableNumber"]}/?name=${encodeURI(`${matchInfo.teamAName} VS ${matchInfo.teamBName}`)}`;
 
     }
     let [showDelete, setShowDelete] = useState(false)

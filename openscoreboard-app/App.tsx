@@ -1,7 +1,7 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ArchivedMatchList from './src/ArchivedMatchList';
 import { createNativeStackNavigator, } from '@react-navigation/native-stack';
-import { LinkingOptions, NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import AddPlayers from './src/AddPlayers';
 import MyTables from './src/MyTables';
 import TableScoring from './src/TableScoring';
@@ -24,45 +24,78 @@ import PlayerRegistration from './src/PlayerRegistration';
 import i18n from './src/translations/translate';
 import TableLiveScoringLink from './src/TableLiveScoringLink';
 
-export const linkingConfig = {
-  screens: {
-    TableScoring: { path: subFolderPath + "/scoring/table/:tableID/:name/:password" },
-    TeamMatchScoring: {
-      path: subFolderPath + "/teamscoring/teammatch/:isTeamMatch/:teamMatchID/:tableNumber",
-      parse: {
-        isTeamMatch: (isTeamMatch) => { return true },
-      },
-    },
-    PlayerRegistration: {
-      path: subFolderPath + "/playerregistration/:playerListID/:password",
-    },
-    Login: subFolderPath + "/login",
-    Home: {
-      path: subFolderPath + "/",
-      screens: {
-        MyTables: subFolderPath + "/tables",
-        ArchivedMatchList: subFolderPath + "/archivedmatches",
-        AddPlayers: subFolderPath + "/addplayers",
-        MyScoreboards: subFolderPath + "/scoreboards",
-        MyTeams: subFolderPath + "/teams",
-        MyTeamMatches: subFolderPath + "/teammatches",
-        ScheduledTableMatches: subFolderPath + "/scheduledtablematches",
-        //QRCodeScreen:subFolderPath+"/qrcode",
-        BulkAddPlayer: subFolderPath + "/bulkplayer"
-      }
-    },
-
-
-  }
+const routeMap = {
+  "/": "Home",
+  "/login": "Login",
+  "/tables": "MyTables",
+  "/scoreboards": "MyScoreboards",
+  "/teams": "MyTeams",
+  "/teammatches": "MyTeamMatches",
+  "/scheduledtablematches": "ScheduledTableMatches",
+  "/addplayers": "AddPlayers",
+  "/players": "MyPlayerLists",
+  "/dynamicurls": "DynamicURLS",
+  "/livescoring": "TableLiveScoringLink",
+  "/account": "MyAccount",
+  "/archivedmatches": "ArchivedMatchList",
+  "/bulkplayer": "BulkAddPlayer",
 }
-console.log(linkingConfig)
+
+function getRouteInfo(path) {
+  if (path.endsWith("/")) path = path.slice(0, -1);
+
+  if (routeMap[path]) return { name: routeMap[path], params: {} };
+
+  let match;
+  match = path.match(/^\/scoring\/table\/([^/]+)\/([^/]+)\/([^/]+)/);
+  if (match) {
+    const searchParams = new URLSearchParams(window.location.search);
+    return {
+      name: "TableScoring",
+      params: {
+        tableID: match[1],
+        name: decodeURIComponent(match[2]),
+        password: match[3],
+        sportName: searchParams.get("sportName") || "tableTennis",
+        scoringType: searchParams.get("scoringType"),
+      },
+    };
+  }
+
+  match = path.match(/^\/teamscoring\/teammatch\/([^/]+)\/([^/]+)\/([^/]+)/);
+  if (match) {
+    const searchParams = new URLSearchParams(window.location.search);
+    return {
+      name: "TeamMatchScoring",
+      params: {
+        isTeamMatch: match[1] === "true",
+        teamMatchID: match[2],
+        tableNumber: match[3],
+        name: searchParams.get("name") || "",
+        sportName: searchParams.get("sportName") || "tableTennis",
+        scoringType: searchParams.get("scoringType"),
+        tableID: searchParams.get("tableID") || "",
+      },
+    };
+  }
+
+  match = path.match(/^\/playerregistration\/([^/]+)\/([^/]+)/);
+  if (match) {
+    return {
+      name: "PlayerRegistration",
+      params: { playerListID: match[1], password: match[2] },
+    };
+  }
+
+  return { name: "Home", params: {} };
+}
 const ScoreboardStack = createNativeStackNavigator()
 
 function ScoreboardNavigation() {
 
   let [doneLoading, setDoneLoading] = useState(false)
   let [isSignedIn, setIsSignedIn] = useState(isLocalDatabase)
-  let [hasLoadedLogin, setHasLoadedLogin] = useState(false)
+  let navigationRef = useRef(null)
 
 
 
@@ -90,11 +123,43 @@ function ScoreboardNavigation() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!doneLoading) return;
+    if (!navigationRef.current) return;
+    let { name, params } = getRouteInfo(window.location.pathname);
+    navigationRef.current.navigate(name, params);
+  }, [doneLoading]);
+
+  useEffect(() => {
+    if (!doneLoading) return;
+    let onPopState = () => {
+      if (!navigationRef.current) return;
+      let { name, params } = getRouteInfo(window.location.pathname);
+      navigationRef.current.navigate(name, params);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [doneLoading]);
+
   if (doneLoading) {
     return (
 
 
-      <NavigationContainer linking={{ config: linkingConfig, }}>
+      <NavigationContainer ref={navigationRef} onStateChange={(state) => {
+        if (!state) return;
+        let route = state.routes[state.index];
+        if (!route) return;
+        let url = window.location.pathname;
+        for (let [path, name] of Object.entries(routeMap)) {
+          if (name === route.name) {
+            url = path;
+            break;
+          }
+        }
+        if (url !== window.location.pathname) {
+          window.history.pushState(null, "", url);
+        }
+      }}>
 
 
         <ScoreboardStack.Navigator screenOptions={{

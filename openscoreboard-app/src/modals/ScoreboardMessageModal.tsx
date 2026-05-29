@@ -19,11 +19,11 @@ export function ScoreboardMessageModal(props) {
                     >
                         <Button onPress={() => {
                             let editorLink = ""
+                            const editorDevPort = "3002"
                             if (process.env.NODE_ENV === "production") {
-                                editorLink = props.editorURL
+                                editorLink = window.location.origin + props.editorURL
                             }
                             else {
-                                const editorDevPort = "3002"
                                 editorLink = window.location.origin.replace(window.location.port, editorDevPort) + props.editorURL
                             }
 
