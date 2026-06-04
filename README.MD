@@ -8,26 +8,8 @@ Open Scoreboard is a scoreboard suite, built on web technologies.
 
 Using a real time database, users can update the score on a smart device, and a browser laid over your live stream will instantly update the score. Allowing you to update the graphics in real time, without the need for a large graphics system.
 
-The project was initially built for table tennis scoreboards, but has been adapted to include scoring for Pickleball too, and can be adapted for most other sports. 
+The project was initially built for table tennis scoreboards, but has been adapted to include scoring for Pickleball and Badminton too, and can be adapted for most other sports. 
 
-## Who uses Open Scoreboard? 
-
-1. [USA Table Tennis](https://www.youtube.com/@USATableTennis)
-2. [Table Tennis Daily](https://www.youtube.com/watch?v=Ekf1-DHLbVU)
-3. [FLTT Senior's League](https://www.youtube.com/channel/UChBzKEyrqnaySha0LBVsX-Q)
-4. Many Others.
-
-## Developing On Open Scoreboard
-
-This project is made of 4 different components:
-    
-1. **App** -- Where Tables/Courts/Team Matches are created, and the score is kept.
-2. **Editor** -- Scoreboards are created and designed.
-3. **Scoreboard** -- Where the overlay URL is provided for the live stream.
-4. **Server** -- Serves the web pages, and offers two different database configurations:
-
-    * **Firebase**
-    * [**Acebase**](https://github.com/appy-one/acebase) -- A local database
 
 
 ## Getting Started
@@ -48,7 +30,7 @@ This project is made of 4 different components:
 
 * Table Tennis
 * Pickleball
-
+* Badminton
 ## Non-supported Sports
 
 **Officially** only the sports above are supported, however, any sport with a similar scoring system can be use this project. 
