@@ -6,36 +6,83 @@ import { addImportedPlayer, getMyPlayerLists } from "./functions/players";
 import LoadingPage from "./LoadingPage";
 import i18n from "./translations/translate";
 
+function buildCountryNameToCodeMap(): Record<string, string> {
+    const map: Record<string, string> = {};
+    for (const [code, name] of Object.entries(jsonFlags)) {
+        map[name.toLowerCase()] = code;
+    }
+    map["usa"] = "US";
+    map["u.s.a."] = "US";
+    map["america"] = "US";
+    map["united states"] = "US";
+    map["united states of america"] = "US";
+    map["uk"] = "GB";
+    map["u.k."] = "GB";
+    map["united kingdom"] = "GB";
+    map["uae"] = "AE";
+    map["united arab emirates"] = "AE";
+    return map;
+}
+
+const countryNameToCode = buildCountryNameToCodeMap();
+
+function normalizeCountryCode(input: string): string {
+    const trimmed = input.trim().toUpperCase();
+    const validCodes = Object.keys(jsonFlags);
+    if (validCodes.includes(trimmed)) {
+        return trimmed;
+    }
+    const mapped = countryNameToCode[input.trim().toLowerCase()];
+    if (mapped) {
+        return mapped;
+    }
+    return input.trim();
+}
+
+function detectDelimiter(text: string): string {
+    const lines = text.split('\n');
+    for (const line of lines) {
+        if (line.includes('\t')) {
+            return '\t';
+        }
+    }
+    return ',';
+}
+
+function splitRow(row: string, delimiter: string): string[] {
+    return row.split(delimiter).map(s => s.trim());
+}
 
 function validateCSV(csvString: string) {
     const rows = csvString.split('\n');
+    const delimiter = detectDelimiter(csvString);
 
     for (let i = 0; i < rows.length; i++) {
-        const columns = rows[i].split(',');
+        const row = rows[i].trim();
+        if (row.length === 0) continue;
 
-        // Check if the CSV row has the correct number of columns
+        const columns = splitRow(row, delimiter);
+
         if (columns.length !== 4) {
             return `Error: Row ${i + 1} does not have exactly 4 columns.`;
         }
 
-        // Check if the first and second columns have length less than 60
         if (columns[0].length > 60 || columns[1].length > 60) {
             return `Error: Row ${i + 1}, Column 1 or Column 2 has length greater than 60.`;
         }
 
-        // Check if the third column is either blank or a valid image URL
         if (columns[2] !== '' && !isValidImageUrl(columns[2])) {
             return `Error: Row ${i + 1}, Column 3 should be either blank or a valid image URL.`;
         }
 
-        // Check if the fourth column has a valid value from a predefined array
-        const validValues = Object.keys(jsonFlags); // Define your array of valid values
-        if (!validValues.includes(columns[3].toUpperCase())) {
+        const normalized = normalizeCountryCode(columns[3]);
+        const validValues = Object.keys(jsonFlags);
+        if (!validValues.includes(normalized)) {
             return `Error: Row ${i + 1}, Column 4 does not have a valid value.`;
         }
     }
 
-    return true; // If all checks pass, return true
+    return true;
 }
 
 function isValidImageUrl(url: string) {
@@ -68,14 +115,14 @@ export default function BulkAddPlayer() {
 
     async function onSubmit() {
         if (validateCSV(csvValue) === true) {
-            let splitCSV = csvValue.split("\n")
-            let playerList = splitCSV.map((player) => {
-                let playerSplit = player.split(",")
-                return newImportedPlayer(playerSplit[0], playerSplit[1], playerSplit[2], playerSplit[3])
-            })
-            playerList.forEach(async (newPlayer) => {
-                let playerID = await addImportedPlayer(selectedPlayerListID, newPlayer);
-            })
+            const delimiter = detectDelimiter(csvValue);
+            const rows = csvValue.split("\n");
+            for (const row of rows) {
+                const trimmed = row.trim();
+                if (trimmed.length === 0) continue;
+                const cols = splitRow(trimmed, delimiter);
+                await addImportedPlayer(selectedPlayerListID, newImportedPlayer(cols[0], cols[1], cols[2], normalizeCountryCode(cols[3])));
+            }
         }
 
     }

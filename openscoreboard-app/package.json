@@ -29,6 +29,7 @@
     "expo-router": "~6.0.14",
     "expo-status-bar": "~3.0.8",
     "expo-web-browser": "~15.0.9",
+    "fast-xml-parser": "^5.8.0",
     "firebase": "^8.10.1",
     "firebaseui": "5.0.0",
     "i18n-js": "^4.2.3",

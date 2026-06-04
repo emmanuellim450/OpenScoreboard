@@ -17,7 +17,7 @@ export function PreLoadedPlayerItem(props) {
                     <View alignItems={"center"} flexDirection={"row"}>
                         {props.imageURL && props.imageURL.length > 0 ?
                             <View padding={1}>
-                                <Avatar square source={{ uri: props.imageURL }}></Avatar>
+                                <Avatar size="md" source={{ uri: props.imageURL }}></Avatar>
                             </View>
                             : null}
                         <Text fontSize={"lg"} fontWeight="bold">{props.firstName + " " + props.lastName}</Text>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, View, Text, Divider } from 'native-base';
+import { Button, View, Text, Divider, Avatar } from 'native-base';
 import { openScoreboardButtonTextColor, openScoreboardColor } from "../../openscoreboardtheme";
 import { FontAwesome } from '@expo/vector-icons';
 import { deleteMyTeam } from '../functions/teams';
@@ -11,7 +11,12 @@ export function TeamItem(props) {
     let [loadingDelete, setLoadingDelete] = useState();
     return (
         <View>
-            <View padding={1}>
+            <View padding={1} flexDirection={"row"} alignItems={"center"}>
+                {props.item[1].teamLogoURL && props.item[1].teamLogoURL.length > 0 ?
+                    <View paddingRight={2}>
+                        <Avatar size="md" source={{ uri: props.item[1].teamLogoURL }}></Avatar>
+                    </View>
+                    : null}
                 <Text fontSize={"3xl"} fontWeight="bold">{props.item[1].name}</Text>
             </View>
 

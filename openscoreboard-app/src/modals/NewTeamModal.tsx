@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, View, Modal, AddIcon, FormControl, Input, Text, Spinner } from 'native-base';
+import { Button, View, Modal, AddIcon, FormControl, Input, Text, Spinner, FlatList, Divider, Checkbox } from 'native-base';
 import { openScoreboardButtonTextColor, openScoreboardColor } from "../../openscoreboardtheme";
 import { addNewTeam, getTeam, updateMyTeam, updateTeam } from '../functions/teams';
 import { newImportedPlayer } from '../classes/Player';
 import { newTeam } from '../classes/Team';
 import { v4 as uuidv4 } from 'uuid';
 import { TeamPlayerItem } from '../listitems/TeamPlayerItem';
+import { getMyPlayerLists, getImportPlayerList, sortPlayers } from '../functions/players';
 import i18n from '../translations/translate';
 
 export function NewTeamModal(props) {
@@ -25,6 +26,16 @@ export function NewTeamModal(props) {
     let [lastName, setLastName] = useState("");
     let [imageURL, setImageURL] = useState("");
 
+    let [addPlayerMode, setAddPlayerMode] = useState<'manual' | 'import'>('manual');
+    let [myPlayerLists, setMyPlayerLists] = useState([]);
+    let [selectedListID, setSelectedListID] = useState("");
+    let [importedPlayers, setImportedPlayers] = useState([]);
+    let [searchText, setSearchText] = useState("");
+    let [loadingList, setLoadingList] = useState(false);
+    let [loadingPlayers, setLoadingPlayers] = useState(false);
+    let [selectedImportPlayers, setSelectedImportPlayers] = useState<Record<string, boolean>>({});
+    let [listLoaded, setListLoaded] = useState(false);
+
     let teamNameRef = useRef()
     let firstNameRef = useRef()
 
@@ -32,7 +43,7 @@ export function NewTeamModal(props) {
         if (props.isEditingTeam) {
             setLoadingNewTeam(true);
             await updateTeam(props.editingTeamID, { ...editingTeam.current, teamName: teamName, teamLogoURL: teamLogoURL, players: JSON.parse(JSON.stringify(players)) });
-            await updateMyTeam(props.editingMyTeamID, teamName);
+            await updateMyTeam(props.editingMyTeamID, teamName, teamLogoURL);
             setLoadingNewTeam(false);
 
             props.onClose();
@@ -48,11 +59,6 @@ export function NewTeamModal(props) {
 
     }
 
-    // useEffect(() => {
-    //     setPlayers(props.players || [])
-    //     setTeamName(props.teamName || "")
-    //     setTeamLogoURL(props.teamLogoURL || "")
-    // }, [props.teamName, props.teamLogoURL, props.players])
     useEffect(() => {
         async function loadEditTeam(teamID) {
             if (props.isEditingTeam) {
@@ -61,9 +67,9 @@ export function NewTeamModal(props) {
                 editingTeam.current = team;
                 const { teamName, teamLogoURL, players } = team;
                 setTeamName(teamName);
-                setTeamLogoURL(teamLogoURL);
+                setTeamLogoURL(teamLogoURL || "");
                 setPlayers(players);
-
+                setLoadingEditTeam(false);
             }
             else {
                 setTeamName("");
@@ -87,15 +93,38 @@ export function NewTeamModal(props) {
 
     useEffect(() => {
         setTimeout(() => {
-            if (showAddPlayer) {
+            if (showAddPlayer && addPlayerMode === 'manual') {
                 document.getElementById(firstNameRef.current.id).focus()
-
             }
-
         }, 200);
 
+    }, [showAddPlayer, addPlayerMode])
 
-    }, [showAddPlayer])
+    useEffect(() => {
+        async function loadLists() {
+            setLoadingList(true);
+            let lists = await getMyPlayerLists();
+            setMyPlayerLists(lists);
+            setLoadingList(false);
+            setListLoaded(true);
+        }
+        if (showAddPlayer && addPlayerMode === 'import') {
+            loadLists();
+        }
+    }, [showAddPlayer, addPlayerMode]);
+
+    async function loadPlayersFromList(listID: string) {
+        if (!listID) return;
+        setLoadingPlayers(true);
+        setSelectedImportPlayers({});
+        let players = await getImportPlayerList(listID);
+        setImportedPlayers(sortPlayers(players));
+        setLoadingPlayers(false);
+    }
+
+    function addPlayerToTeam(player) {
+        setPlayers(prev => ({ ...prev, [uuidv4()]: newImportedPlayer(player.firstName, player.lastName, player.imageURL, player.country || "") }));
+    }
 
     return (
         <Modal
@@ -109,45 +138,171 @@ export function NewTeamModal(props) {
                 <Modal.Header>{showAddPlayer ? i18n.t("addTeamPlayer") : i18n.t("newTeam")}</Modal.Header>
                 <Modal.Body>
                     {showAddPlayer ?
-                        <FormControl>
-                            <FormControl.Label>{i18n.t("firstName")}<Text color={"red"}>*</Text></FormControl.Label>
-                            <Input ref={firstNameRef} value={firstName} onChangeText={setFirstName}></Input>
-                            <FormControl.Label>{i18n.t("lastName")}</FormControl.Label>
-                            <Input value={lastName} onChangeText={setLastName}></Input>
-                            <FormControl.Label>{i18n.t("imageURL")}</FormControl.Label>
-                            <Input value={imageURL} onChangeText={setImageURL}></Input>
-
-
-                            {/* <FormControl.Label>Country</FormControl.Label> */}
-                            <View flexDir={"row"}>
+                        <>
+                            <View flexDir={"row"} flexWrap={"wrap"}>
                                 <View padding={1} flex={1}>
                                     <Button
-                                        onPress={async () => {
-                                            setPlayers({ ...players, [uuidv4()]: newImportedPlayer(firstName, lastName, imageURL, "") });
-                                            setShowAddPlayer(false);
-                                            setFirstName("");
-                                            setLastName("");
-                                            setImageURL("")
-                                        }}
+                                        onPress={() => setAddPlayerMode('manual')}
+                                        variant={addPlayerMode === 'manual' ? 'solid' : 'outline'}
                                     >
-                                        <Text color={openScoreboardButtonTextColor}>{i18n.t("add")}</Text>
+                                        <Text color={addPlayerMode === 'manual' ? openScoreboardButtonTextColor : openScoreboardColor}>{i18n.t("manual")}</Text>
                                     </Button>
                                 </View>
                                 <View padding={1} flex={1}>
-                                    <Button variant={"outline"}
-                                        onPress={async () => {
-                                            setShowAddPlayer(false);
-                                            setFirstName("");
-                                            setLastName("");
-                                            setImageURL("")
-                                        }}
+                                    <Button
+                                        onPress={() => setAddPlayerMode('import')}
+                                        variant={addPlayerMode === 'import' ? 'solid' : 'outline'}
                                     >
-                                        <Text color={openScoreboardColor}>{i18n.t("back")}</Text>
+                                        <Text color={addPlayerMode === 'import' ? openScoreboardButtonTextColor : openScoreboardColor}>{i18n.t("importFromList")}</Text>
                                     </Button>
                                 </View>
                             </View>
+                            {addPlayerMode === 'manual' ?
+                                <FormControl>
+                                    <FormControl.Label>{i18n.t("firstName")}<Text color={"red"}>*</Text></FormControl.Label>
+                                    <Input ref={firstNameRef} value={firstName} onChangeText={setFirstName}></Input>
+                                    <FormControl.Label>{i18n.t("lastName")}</FormControl.Label>
+                                    <Input value={lastName} onChangeText={setLastName}></Input>
+                                    <FormControl.Label>{i18n.t("imageURL")}</FormControl.Label>
+                                    <Input value={imageURL} onChangeText={setImageURL}></Input>
 
-                        </FormControl> :
+                                    <View flexDir={"row"}>
+                                        <View padding={1} flex={1}>
+                                            <Button
+                                                onPress={async () => {
+                                                    setPlayers(prev => ({ ...prev, [uuidv4()]: newImportedPlayer(firstName, lastName, imageURL, "") }));
+                                                    setShowAddPlayer(false);
+                                                    setFirstName("");
+                                                    setLastName("");
+                                                    setImageURL("")
+                                                }}
+                                            >
+                                                <Text color={openScoreboardButtonTextColor}>{i18n.t("add")}</Text>
+                                            </Button>
+                                        </View>
+                                        <View padding={1} flex={1}>
+                                            <Button variant={"outline"}
+                                                onPress={async () => {
+                                                    setShowAddPlayer(false);
+                                                    setFirstName("");
+                                                    setLastName("");
+                                                    setImageURL("")
+                                                }}
+                                            >
+                                                <Text color={openScoreboardColor}>{i18n.t("back")}</Text>
+                                            </Button>
+                                        </View>
+                                    </View>
+                                </FormControl>
+                                :
+                                <FormControl>
+                                    <FormControl.Label>{i18n.t("selectPlayerList")}</FormControl.Label>
+                                    {loadingList ?
+                                        <Spinner></Spinner>
+                                        :
+                                        <>
+                                            <View>
+                                                {myPlayerLists.map((list) => {
+                                                    let listID = list[1].id;
+                                                    let listName = list[1].playerListName;
+                                                    return (
+                                                        <View key={listID} paddingY={1}>
+                                                            <Button
+                                                                variant={selectedListID === listID ? 'solid' : 'outline'}
+                                                                onPress={() => {
+                                                                    setSelectedListID(listID);
+                                                                    loadPlayersFromList(listID);
+                                                                    setSearchText("");
+                                                                }}
+                                                            >
+                                                                <Text color={selectedListID === listID ? openScoreboardButtonTextColor : openScoreboardColor}>{listName}</Text>
+                                                            </Button>
+                                                        </View>
+                                                    );
+                                                })}
+                                            </View>
+                                            {selectedListID && (
+                                                <>
+                                                    <FormControl.Label>{i18n.t("searchPlayerName")}</FormControl.Label>
+                                                    <Input
+                                                        placeholder={i18n.t("searchPlayerName")}
+                                                        value={searchText}
+                                                        onChangeText={setSearchText}
+                                                    ></Input>
+                                                    <Divider></Divider>
+                                                    {loadingPlayers ?
+                                                        <Spinner></Spinner>
+                                                        :
+                                                        <FlatList
+                                                            maxHeight={300}
+                                                            data={importedPlayers.filter((item) => {
+                                                                let fullName = (item[1].firstName + " " + item[1].lastName).toLowerCase();
+                                                                return fullName.includes(searchText.toLowerCase());
+                                                            })}
+                                                            keyExtractor={(item) => item[0]}
+                                                            renderItem={({ item }) => {
+                                                                let player = item[1];
+                                                                let playerID = item[0];
+                                                                let isSelected = selectedImportPlayers[playerID] || false;
+                                                                return (
+                                                                    <Checkbox
+                                                                        value={playerID}
+                                                                        isChecked={isSelected}
+                                                                        onChange={() => {
+                                                                            setSelectedImportPlayers({
+                                                                                ...selectedImportPlayers,
+                                                                                [playerID]: !isSelected
+                                                                            });
+                                                                        }}
+                                                                        marginY={1}
+                                                                    >
+                                                                        <Text paddingLeft={1}>{player.firstName} {player.lastName}</Text>
+                                                                    </Checkbox>
+                                                                );
+                                                            }}
+                                                        ></FlatList>
+                                                    }
+                                                    {Object.keys(selectedImportPlayers).filter(k => selectedImportPlayers[k]).length > 0 && (
+                                                        <View flexDir={"row"} paddingY={2}>
+                                                            <View padding={1} flex={1}>
+                                                                <Button
+                                                                    onPress={() => {
+                                                                        for (const pid of Object.keys(selectedImportPlayers)) {
+                                                                            if (selectedImportPlayers[pid]) {
+                                                                                let playerData = importedPlayers.find(([id]) => id === pid);
+                                                                                if (playerData) {
+                                                                                    addPlayerToTeam(playerData[1]);
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        setShowAddPlayer(false);
+                                                                        setSelectedImportPlayers({});
+                                                                    }}
+                                                                >
+                                                                    <Text color={openScoreboardButtonTextColor}>
+                                                                        {i18n.t("add")} ({Object.keys(selectedImportPlayers).filter(k => selectedImportPlayers[k]).length})
+                                                                    </Text>
+                                                                </Button>
+                                                            </View>
+                                                            <View padding={1} flex={1}>
+                                                                <Button variant={"outline"}
+                                                                    onPress={() => {
+                                                                        setShowAddPlayer(false);
+                                                                        setSelectedImportPlayers({});
+                                                                    }}
+                                                                >
+                                                                    <Text color={openScoreboardColor}>{i18n.t("back")}</Text>
+                                                                </Button>
+                                                            </View>
+                                                        </View>
+                                                    )}
+                                                </>
+                                            )}
+                                        </>
+                                    }
+                                </FormControl>
+                            }
+                        </> :
                         <FormControl>
                             <FormControl.Label>{i18n.t("teamName")}</FormControl.Label>
                             <Input
@@ -169,8 +324,7 @@ export function NewTeamModal(props) {
                                                 setPlayers(newPlayerList);
                                             }}
                                             onSave={(player) => {
-                                                let newPlayerList = { ...players, [uuidv4()]: player };
-                                                setPlayers(newPlayerList);
+                                                setPlayers(prev => ({ ...prev, [uuidv4()]: player }));
                                             }}
                                             onDelete={(id) => {
                                                 let newPlayerList = { ...players };
@@ -183,6 +337,7 @@ export function NewTeamModal(props) {
                             })}
                             <Button
                                 onPress={() => {
+                                    setAddPlayerMode('manual');
                                     setShowAddPlayer(true);
                                 }}
                             >
@@ -199,7 +354,7 @@ export function NewTeamModal(props) {
                                 if (props.isEditingTeam) {
                                     setLoadingNewTeam(true);
                                     await updateTeam(props.editingTeamID, { ...editingTeam.current, teamName: teamName, teamLogoURL: teamLogoURL, players: JSON.parse(JSON.stringify(players)) });
-                                    await updateMyTeam(props.editingMyTeamID, teamName);
+                                    await updateMyTeam(props.editingMyTeamID, teamName, teamLogoURL);
                                     setLoadingNewTeam(false);
 
                                     props.onClose();

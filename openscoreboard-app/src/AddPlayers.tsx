@@ -41,8 +41,9 @@ export default function AddPlayers(props) {
 
 
         async function loadPlayers() {
-
-            let playerValues = await getImportPlayerList(props.route.params.playerListID)
+            let playerListID = props.route.params?.playerListID
+            if (!playerListID) return;
+            let playerValues = await getImportPlayerList(playerListID)
             if (playerValues.length > 0) {
                 playerValues = sortPlayers(playerValues)
             }
@@ -51,7 +52,7 @@ export default function AddPlayers(props) {
 
         }
         loadPlayers()
-    }, [props.navigation])
+    }, [props.navigation, props.route.params?.playerListID])
 
 
     return (<NativeBaseProvider theme={openScoreboardTheme}>

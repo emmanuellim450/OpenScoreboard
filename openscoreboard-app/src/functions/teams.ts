@@ -6,6 +6,7 @@ export async function addNewTeam(team,) {
         id: pushedTeam.key,
         createdOn: new Date(),
         name: team.teamName,
+        teamLogoURL: team.teamLogoURL || "",
     })
 }
 
@@ -43,6 +44,7 @@ export async function getTeamName(teamID) {
 export async function updateTeam(teamID, team) {
     let pushedTeam = await db.ref(`teams/${teamID}`).set(team)
 }
-export async function updateMyTeam(myTeamID, name) {
-    let pushedTeam = await db.ref("users" + "/" + getUserPath() + "/" + "myTeams/" + myTeamID + "/name").set(name)
+export async function updateMyTeam(myTeamID, name, teamLogoURL?: string) {
+    let ref = db.ref("users" + "/" + getUserPath() + "/" + "myTeams/" + myTeamID)
+    await ref.update({ name, teamLogoURL: teamLogoURL || "" })
 }

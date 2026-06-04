@@ -23,6 +23,7 @@ import BulkAddPlayer from './src/BulkAddPlayers';
 import PlayerRegistration from './src/PlayerRegistration';
 import i18n from './src/translations/translate';
 import TableLiveScoringLink from './src/TableLiveScoringLink';
+import TableLiveScoreDisplay from './src/TableLiveScoreDisplay';
 
 const routeMap = {
   "/": "Home",
@@ -32,7 +33,6 @@ const routeMap = {
   "/teams": "MyTeams",
   "/teammatches": "MyTeamMatches",
   "/scheduledtablematches": "ScheduledTableMatches",
-  "/addplayers": "AddPlayers",
   "/players": "MyPlayerLists",
   "/dynamicurls": "DynamicURLS",
   "/livescoring": "TableLiveScoringLink",
@@ -47,6 +47,17 @@ function getRouteInfo(path) {
   if (routeMap[path]) return { name: routeMap[path], params: {} };
 
   let match;
+  if (path === "/addplayers") {
+    return { name: "AddPlayers", params: {} };
+  }
+  match = path.match(/^\/addplayers\/([^/]+)/);
+  if (match) {
+    return {
+      name: "AddPlayers",
+      params: { playerListID: match[1] },
+    };
+  }
+
   match = path.match(/^\/scoring\/table\/([^/]+)\/([^/]+)\/([^/]+)/);
   if (match) {
     const searchParams = new URLSearchParams(window.location.search);
@@ -85,6 +96,12 @@ function getRouteInfo(path) {
       name: "PlayerRegistration",
       params: { playerListID: match[1], password: match[2] },
     };
+  }
+
+  if (path === "/live-scores") {
+    const searchParams = new URLSearchParams(window.location.search);
+    const tables = searchParams.get("tables") || "";
+    return { name: "TableLiveScoreDisplay", params: { tables } };
   }
 
   return { name: "Home", params: {} };
@@ -150,10 +167,14 @@ function ScoreboardNavigation() {
         let route = state.routes[state.index];
         if (!route) return;
         let url = window.location.pathname;
-        for (let [path, name] of Object.entries(routeMap)) {
-          if (name === route.name) {
-            url = path;
-            break;
+        if (route.name === "AddPlayers" && (route.params as any)?.playerListID) {
+          url = `/addplayers/${(route.params as any).playerListID}`;
+        } else {
+          for (let [path, name] of Object.entries(routeMap)) {
+            if (name === route.name) {
+              url = path;
+              break;
+            }
           }
         }
         if (url !== window.location.pathname) {
@@ -205,6 +226,7 @@ function ScoreboardNavigation() {
                 <ScoreboardStack.Screen name="BulkAddPlayer" component={BulkAddPlayer} options={{ title: "Bulk Add Player" }} ></ScoreboardStack.Screen>
                 <ScoreboardStack.Screen name="PlayerRegistration" component={PlayerRegistration} options={{ title: i18n.t("playerRegistrationScreen") }} ></ScoreboardStack.Screen>
                 <ScoreboardStack.Screen name="TableLiveScoringLink" component={TableLiveScoringLink} options={{ title: i18n.t("tableLiveScoring") }} ></ScoreboardStack.Screen>
+                <ScoreboardStack.Screen name="TableLiveScoreDisplay" component={TableLiveScoreDisplay} options={{ title: i18n.t("tableLiveScoring") }} ></ScoreboardStack.Screen>
 
               </ScoreboardStack.Group>
 
